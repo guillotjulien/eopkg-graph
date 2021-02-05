@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/xml"
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -35,6 +36,10 @@ func NewPackage(name string) (p *Package, err error) {
 
 	o, err := exec.Command(cmd[0], cmd[1:]...).Output()
 	if err != nil {
+		if err.Error() == "exit status 1" {
+			return nil, fmt.Errorf("Package %s does not exists", name)
+		}
+
 		return
 	}
 
