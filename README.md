@@ -2,7 +2,7 @@
 
 A CLI utility to generate the runtime dependency graph of a package from its eopkg metadata.
 
-![GNOME-shell dependency graph](https://github.com/guillotjulien/eopkg-deps/examples/graph-gnome-shell.png "GNOME-shell dependency graph")
+![GNOME-shell dependency graph](https://github.com/guillotjulien/eopkg-deps/blob/main/examples/graph-gnome-shell.png "GNOME-shell dependency graph")
 <figcaption style="text-align: center; font-weight: bold;">GNOME-shell dependency graph</figcaption>
 
 ## Installation
