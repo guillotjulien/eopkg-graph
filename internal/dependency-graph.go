@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/go-echarts/go-echarts/v2/charts"
+	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
 )
@@ -70,7 +72,7 @@ func (g *DependencyGraph) Graphviz(showSingleNodes bool) (gviz *graphviz.Graphvi
 	for _, n := range g.nodes {
 		// In the case the node doesn't have subnodes, we don't display it in
 		// the graph.
-		if len(g.edges[n]) == 0 && showSingleNodes {
+		if len(g.edges[n]) == 0 && !showSingleNodes {
 			continue
 		}
 
@@ -91,18 +93,84 @@ func (g *DependencyGraph) Graphviz(showSingleNodes bool) (gviz *graphviz.Graphvi
 		for _, n := range e {
 			n1.SetLabel(fmt.Sprintf("%s\n%s", n1.Get("label"), n.Name))
 
-			n2 := nodes[n.Name]
-			if n2 == nil && showSingleNodes {
-				continue
-			}
-
-			_, err = graph.CreateEdge("", n1, n2)
-			if err != nil {
-				return
+			if n2, ok := nodes[n.Name]; ok {
+				_, err = graph.CreateEdge("", n1, n2)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
 
 	g.RUnlock()
 	return
+}
+
+// HTML returns a go-charts interactive graph ready to be saved as html
+func (g *DependencyGraph) HTML(rootPackage string, showSingleNodes bool) *charts.Graph {
+	g.RLock()
+
+	nodes := make(map[string]opts.GraphNode)
+
+	graph := charts.NewGraph()
+	graph.SetGlobalOptions(
+		charts.WithTitleOpts(opts.Title{Title: fmt.Sprintf("Runtime Dependencies %s", rootPackage)}),
+	)
+
+	graphNodes := make([]opts.GraphNode, 0)
+	graphEdges := make([]opts.GraphLink, 0)
+
+	for _, n := range g.nodes {
+		// In the case the node doesn't have subnodes, we don't display it in
+		// the graph.
+		if len(g.edges[n]) == 0 && !showSingleNodes {
+			continue
+		}
+
+		node := opts.GraphNode{Name: n.Name}
+
+		if node.Name == rootPackage {
+			node.SymbolSize = 20
+			node.Symbol = "diamond"
+			node.X = 250 // FIXME: Should depends on the size of the graph
+			node.Y = 250
+			node.Fixed = true
+			node.ItemStyle = &opts.ItemStyle{
+				Color: "#50a3ba",
+			}
+		}
+
+		graphNodes = append(graphNodes, node)
+
+		nodes[n.Name] = node
+	}
+
+	for node, e := range g.edges {
+		n1 := nodes[node.Name]
+
+		for _, n := range e {
+			if n2, ok := nodes[n.Name]; ok {
+				edge := opts.GraphLink{Source: n1.Name, Target: n2.Name}
+				graphEdges = append(graphEdges, edge)
+			}
+		}
+	}
+
+	graph.AddSeries("graph", graphNodes, graphEdges)
+	graph.SetSeriesOptions(
+		charts.WithLabelOpts(opts.Label{
+			Show:     true,
+			Position: "right",
+		}),
+		charts.WithGraphChartOpts(opts.GraphChart{
+			Layout:             "force",
+			Roam:               true,
+			FocusNodeAdjacency: true,
+			Force:              &opts.GraphForce{Repulsion: 10000},
+		}),
+	)
+
+	g.RUnlock()
+
+	return graph
 }
