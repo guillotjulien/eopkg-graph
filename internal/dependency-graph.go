@@ -56,7 +56,7 @@ func (g *DependencyGraph) String() {
 }
 
 // Graphviz returns a populated instance of Graphviz graph
-func (g *DependencyGraph) Graphviz() (gviz *graphviz.Graphviz, graph *cgraph.Graph, err error) {
+func (g *DependencyGraph) Graphviz(showSingleNodes bool) (gviz *graphviz.Graphviz, graph *cgraph.Graph, err error) {
 	g.RLock()
 
 	nodes := make(map[string]*cgraph.Node)
@@ -70,7 +70,7 @@ func (g *DependencyGraph) Graphviz() (gviz *graphviz.Graphviz, graph *cgraph.Gra
 	for _, n := range g.nodes {
 		// In the case the node doesn't have subnodes, we don't display it in
 		// the graph.
-		if len(g.edges[n]) == 0 {
+		if len(g.edges[n]) == 0 && showSingleNodes {
 			continue
 		}
 
@@ -92,7 +92,7 @@ func (g *DependencyGraph) Graphviz() (gviz *graphviz.Graphviz, graph *cgraph.Gra
 			n1.SetLabel(fmt.Sprintf("%s\n%s", n1.Get("label"), n.Name))
 
 			n2 := nodes[n.Name]
-			if n2 == nil {
+			if n2 == nil && showSingleNodes {
 				continue
 			}
 

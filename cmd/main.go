@@ -13,6 +13,10 @@ type generateArgs struct {
 	Path    string `desc:"Saving path of the generated graph"`
 }
 
+type generateFlags struct {
+	SingleNodes bool `long:"single-nodes" desc:"Display nodes without dependencies as a node"`
+}
+
 func main() {
 	root := &cmd.Root{
 		Name:    "eopkg-graph",
@@ -24,6 +28,7 @@ func main() {
 		Name:  "generate",
 		Short: "Generate graph of a package dependencies from eopkg metadata",
 		Args:  &generateArgs{},
+		Flags: &generateFlags{},
 		Run:   generateRun,
 	}
 
@@ -34,6 +39,7 @@ func main() {
 
 func generateRun(r *cmd.Root, s *cmd.Sub) {
 	args := s.Args.(*generateArgs)
+	flags := s.Flags.(*generateFlags)
 
 	p, err := internal.NewPackage(args.Package)
 	if err != nil {
@@ -45,7 +51,7 @@ func generateRun(r *cmd.Root, s *cmd.Sub) {
 		log.Fatal(err)
 	}
 
-	gviz, g, err := d.Graphviz()
+	gviz, g, err := d.Graphviz(!flags.SingleNodes)
 	if err != nil {
 		log.Fatal(err)
 	}
