@@ -2,13 +2,13 @@
 
 build:
 	go get ./...
-	go build -o build/eopkg-deps cmd/main.go
+	go build -o build/eopkg-graph cmd/main.go
 
 install:
-	sudo mv build/eopkg-deps /usr/local/bin/
+	sudo mv build/eopkg-graph /usr/local/bin/
 
 uninstall:
-	sudo /usr/local/bin/eopkg-deps
+	sudo /usr/local/bin/eopkg-graph
 
 clean:
 	rm -r build/

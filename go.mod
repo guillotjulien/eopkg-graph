@@ -1,4 +1,4 @@
-module github.com/guillotjulien/eopkg-deps
+module github.com/guillotjulien/eopkg-graph
 
 go 1.15
 
