@@ -8,7 +8,7 @@ install:
 	sudo mv build/eopkg-graph /usr/local/bin/
 
 uninstall:
-	sudo /usr/local/bin/eopkg-graph
+	sudo rm /usr/local/bin/eopkg-graph
 
 clean:
 	rm -r build/
