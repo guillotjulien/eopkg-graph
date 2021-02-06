@@ -73,13 +73,12 @@ func (p *Package) lookupDependencies(graph *DependencyGraph, visited map[string]
 		// This is needed to avoid overriding fields in the struct when lock is
 		// not released before the loop goes to the next value
 		dependencyCopy := dependency
+		graph.AddEdge(&root, &dependencyCopy)
 
 		// Do not revisit already visited nodes
 		if visited[dependencyCopy.Name] == true {
 			continue
 		}
-
-		graph.AddEdge(&root, &dependencyCopy)
 
 		var dependencyData *Package
 		dependencyData, err := NewPackage(dependencyCopy.Name)
