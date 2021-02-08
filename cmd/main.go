@@ -50,7 +50,7 @@ func generateRun(r *cmd.Root, s *cmd.Sub) {
 		log.Fatal(err)
 	}
 
-	d, err := p.DependencyGraph()
+	d, err := p.DependencyGraphThread()
 	if err != nil {
 		log.Fatal(err)
 	}
